@@ -29,7 +29,7 @@ pipeline{
         stage("quality gate"){
            steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-Token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
                 }
             }
         }
@@ -54,22 +54,22 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
                        sh "docker build -t amazon ."
-                       sh "docker tag amazon ravirekha1/amazon:latest "
-                       sh "docker push ravirekha1/amazon:latest "
+                       sh "docker tag amazon danielbernard/amazon:latest "
+                       sh "docker push danielbernard/amazon:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image ravirekha1/amazon:latest > trivyimage.txt"
+                sh "trivy image danielbernard/amazon:latest > trivyimage.txt"
             }
         }
         stage("deploy_docker"){
             steps{
                 sh "docker stop amazon || true"  // Stop the container if it's running, ignore errors
                 sh "docker rm amazon || true" 
-                sh "docker run -d --name amazon -p 4000:3000 ravirekha1/amazon:latest"
+                sh "docker run -d --name amazon -p 4000:3000 danielbernard/amazon:latest"
             }
         }
     }
